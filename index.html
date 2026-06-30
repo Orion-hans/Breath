@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SUM WAVE 호흡 가이드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0C1714; --panel:#102420; --panel-2:#0E1F1B;
+    --teal:#1D9E75; --teal-soft:#5DCAA5; --teal-deep:#0F6E56;
+    --gold:#D4AF37; --gold-deep:#B9952B;
+    --text:#E9EFEB; --text-2:#9FB5AD; --muted:#6E847C;
+    --line:rgba(255,255,255,0.08); --line-2:rgba(255,255,255,0.14);
+    --danger:#E08A6A;
+  }
+  *{box-sizing:border-box;}
+  button{touch-action:manipulation; -webkit-tap-highlight-color:rgba(29,158,117,.25);}
+  :focus-visible{outline:2px solid var(--gold); outline-offset:2px; border-radius:8px;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:radial-gradient(120% 80% at 50% 0%, #12302a 0%, var(--bg) 55%);
+    color:var(--text); font-family:'Noto Sans KR',system-ui,sans-serif;
+    font-weight:400; line-height:1.7; min-height:100vh; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:540px; margin:0 auto; padding:30px 20px 64px;}
+  header{margin-bottom:22px;}
+  .eyebrow{font-size:12px; letter-spacing:.22em; text-transform:uppercase; color:var(--gold); font-weight:500; margin:0 0 8px;}
+  h1{font-size:25px; font-weight:700; margin:0 0 6px; letter-spacing:-.01em;}
+  .lede{color:var(--text-2); font-size:13px; margin:0;}
+
+  .dots{display:flex; gap:8px; margin:0 0 22px;}
+  .dot{height:6px; flex:1; border-radius:999px; background:var(--line-2); transition:background .25s;}
+  .dot.on{background:var(--gold);}
+  .dot.done{background:var(--teal);}
+
+  .step{display:none;}
+  .step.active{display:block; animation:rise .35s ease both;}
+  @keyframes rise{from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;}}
+
+  .qkicker{font-size:12px; color:var(--gold); font-weight:700; letter-spacing:.08em; margin:0 0 6px;}
+  .qtitle{font-size:20px; font-weight:500; margin:0 0 4px;}
+  .qhint{font-size:13px; color:var(--muted); margin:0 0 18px;}
+  .chips{display:flex; flex-direction:column; gap:10px;}
+  #flags.chips{flex-direction:column;}
+  .chip{
+    appearance:none; width:100%; text-align:left; border:1px solid var(--line-2); background:var(--panel);
+    color:var(--text); font-family:inherit; font-size:15px; font-weight:400;
+    padding:15px 18px; border-radius:14px; cursor:pointer;
+    transition:border-color .15s, background .15s, color .15s; line-height:1.3;
+  }
+  .chip:hover{border-color:var(--teal-soft);}
+  .chip[aria-pressed="true"]{background:var(--teal-deep); border-color:var(--teal); color:#fff;}
+  .chip.none[aria-pressed="true"]{background:#2a3a35; border-color:var(--muted);}
+
+  .nav{display:flex; gap:10px; margin-top:22px;}
+  .btn{
+    appearance:none; border:none; cursor:pointer; font-family:inherit; font-weight:700;
+    font-size:15px; padding:14px 18px; border-radius:14px; transition:transform .08s, background .15s, opacity .15s;
+  }
+  .btn:active{transform:scale(.99);}
+  .btn-next{flex:1; background:var(--gold); color:#1a1505;}
+  .btn-next:hover{background:var(--gold-deep);}
+  .btn-next:disabled{background:#2a3a35; color:var(--text-2); cursor:default;}
+  .btn-back{background:transparent; border:1px solid var(--line-2); color:var(--text-2); font-weight:500;}
+  .btn-back:hover{border-color:var(--teal-soft); color:var(--text);}
+
+  .reco-card{
+    background:linear-gradient(160deg, var(--panel) 0%, var(--panel-2) 100%);
+    border:1px solid var(--line-2); border-radius:20px; padding:24px 22px;
+  }
+  .reco-top{font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--teal-soft); font-weight:500; margin:0 0 6px;}
+  .reco-name{font-size:24px; font-weight:700; margin:0 0 14px;}
+  .pattern{display:flex; flex-wrap:wrap; gap:8px; margin:0 0 16px;}
+  .pchip{font-size:13px; font-weight:500; padding:7px 13px; border-radius:10px; background:#0c2620; border:1px solid var(--teal-deep); color:var(--teal-soft);}
+  .pchip .n{color:#fff; font-weight:700;}
+  .pchip.hold{background:#241f0e; border-color:var(--gold-deep); color:var(--gold);}
+  .why{font-size:14px; color:var(--text-2); margin:0 0 8px;}
+  .why strong{color:var(--text); font-weight:500;}
+  .evidence{font-size:12px; color:var(--muted); margin:0; padding-left:14px; position:relative;}
+  .evidence::before{content:""; position:absolute; left:0; top:9px; width:6px; height:6px; border-radius:50%; background:var(--teal-deep);}
+
+  .alts{margin-top:20px; padding-top:16px; border-top:1px solid var(--line);}
+  .alts h3{font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); font-weight:500; margin:0 0 10px;}
+  .altrow{display:flex; flex-wrap:wrap; gap:8px;}
+  .alt-chip{
+    appearance:none; border:1px solid var(--line-2); background:transparent; color:var(--text-2);
+    font-family:inherit; font-size:13px; padding:8px 14px; border-radius:999px; cursor:pointer; transition:.15s; width:auto;
+  }
+  .alt-chip:hover{border-color:var(--teal-soft); color:var(--text);}
+  .alt-chip[aria-pressed="true"]{background:var(--teal-deep); border-color:var(--teal); color:#fff;}
+  .alt-chip .star{color:var(--gold); margin-right:5px;}
+
+  .excluded{margin-top:18px; padding-top:16px; border-top:1px solid var(--line);}
+  .excluded h3{font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); font-weight:500; margin:0 0 8px;}
+  .exrow{font-size:13px; color:var(--text-2); margin:6px 0; padding-left:18px; position:relative;}
+  .exrow::before{content:"\2715"; position:absolute; left:0; color:var(--danger); font-size:11px; top:3px;}
+  .exrow b{color:var(--text); font-weight:500;}
+
+  .pacer{margin-top:24px; text-align:center;}
+  .orb-stage{height:230px; display:flex; align-items:center; justify-content:center; position:relative;}
+  .orb{
+    width:148px; height:148px; border-radius:50%;
+    background:radial-gradient(circle at 50% 40%, var(--teal-soft) 0%, var(--teal) 45%, var(--teal-deep) 100%);
+    box-shadow:0 0 60px -6px rgba(29,158,117,.55); transform:scale(.55);
+    display:flex; align-items:center; justify-content:center; padding:10px; text-align:center;
+  }
+  .phase{font-size:16px; font-weight:500; color:#04140f; text-shadow:0 1px 2px rgba(255,255,255,.25); line-height:1.25;}
+  .count{position:absolute; bottom:6px; left:0; right:0; font-size:13px; color:var(--text-2);}
+  .controls{display:flex; gap:10px; justify-content:center; align-items:center; margin-top:8px; flex-wrap:wrap;}
+  .pbtn{appearance:none; border:1px solid var(--teal); background:transparent; color:var(--teal-soft); font-family:inherit; font-size:15px; font-weight:500; padding:11px 26px; border-radius:12px; cursor:pointer;}
+  .pbtn:hover{background:rgba(29,158,117,.12);}
+  .sndbtn{appearance:none; border:1px solid var(--line-2); background:transparent; color:var(--text-2); font-family:inherit; font-size:13px; padding:11px 16px; border-radius:12px; cursor:pointer;}
+  .sndbtn:hover{border-color:var(--teal-soft); color:var(--text);}
+  .sndhint{font-size:12px; color:var(--muted); margin-top:10px;}
+  .sumwave-box{margin-top:18px; background:linear-gradient(160deg, #14241f 0%, #101d19 100%); border:1px solid var(--line-2); border-radius:16px; padding:18px 20px;}
+  .sw-top{font-size:11px; letter-spacing:.2em; color:var(--gold); font-weight:600; margin:0 0 6px;}
+  .sw-desc{font-size:14px; color:var(--text); margin:0 0 8px; line-height:1.5;}
+  .sw-soon{font-size:12px; color:var(--text-2); margin:0; line-height:1.55;}
+  .safety-note{font-size:12px; color:var(--muted); margin-top:16px; line-height:1.6;}
+  .restart{margin-top:18px;}
+  @media (prefers-reduced-motion:reduce){ .step.active{animation:none;} }
+
+  /* ===== 아이패드 세로 (768px+) ===== */
+  @media (min-width:768px){
+    .wrap{max-width:620px; padding:48px 28px 80px;}
+    .eyebrow{font-size:13px; margin-bottom:10px;}
+    h1{font-size:31px;}
+    .lede{font-size:15px;}
+    .dots{margin-bottom:30px; gap:10px;}
+    .dot{height:7px;}
+    .qkicker{font-size:13px;}
+    .qtitle{font-size:24px;}
+    .qhint{font-size:15px; margin-bottom:24px;}
+    .chips{gap:13px;}
+    .chip{font-size:17px; padding:18px 22px; border-radius:16px;}
+    .btn{font-size:16px; padding:16px 22px;}
+    .reco-card{padding:30px 28px; border-radius:24px;}
+    .reco-top{font-size:13px;}
+    .reco-name{font-size:28px;}
+    .pchip{font-size:14px; padding:8px 15px;}
+    .why{font-size:16px;}
+    .sumwave-box{padding:22px 24px; border-radius:18px;}
+    .sw-desc{font-size:16px;}
+    .orb-stage{height:280px;}
+    .orb{width:185px; height:185px;}
+    .phase{font-size:19px;}
+    .pbtn{font-size:17px; padding:13px 32px;}
+    .safety-note{font-size:13px;}
+  }
+  /* ===== 아이패드 가로 / 데스크탑 (1024px+) ===== */
+  @media (min-width:1024px){
+    .wrap{max-width:720px; padding:56px 32px 90px;}
+    h1{font-size:35px;}
+    .lede{font-size:16px;}
+    .qtitle{font-size:27px;}
+    .qhint{font-size:16px;}
+    .chip{font-size:18px; padding:20px 24px;}
+    .reco-name{font-size:31px;}
+    .why{font-size:17px;}
+    .sw-desc{font-size:17px;}
+    .orb-stage{height:320px;}
+    .orb{width:210px; height:210px;}
+    .phase{font-size:21px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <p class="eyebrow">SOUND OASIS · SUM WAVE 호흡 가이드</p>
+    <h1>나에게 맞는 호흡법</h1>
+    <p class="lede">한 가지씩 골라 주세요. SUM WAVE 호흡에 맞춰, 안전한 호흡법과 그 리듬에 맞춰 숨 쉬는 소리를 드립니다.</p>
+  </header>
+
+  <div class="dots"><div class="dot" id="d1"></div><div class="dot" id="d2"></div><div class="dot" id="d3"></div><div class="dot" id="d4"></div><div class="dot" id="d5"></div><div class="dot" id="d6"></div><div class="dot" id="d7"></div></div>
+
+  <noscript><p style="color:#E08A6A; font-size:14px; border:1px solid #E08A6A; border-radius:12px; padding:12px 14px;">이 페이지는 동작을 위해 자바스크립트가 필요해요. 파일을 저장한 뒤 사파리나 크롬 같은 브라우저로 열어 주세요.</p></noscript>
+
+  <section class="step active" id="step1">
+    <p class="qkicker">질문 1 / 7</p>
+    <h2 class="qtitle">지금 무엇을 위해 호흡하나요?</h2>
+    <p class="qhint">하나를 고르면 자동으로 다음으로 넘어가요.</p>
+    <div class="chips" id="purpose" role="group">
+      <button class="chip" data-v="sleep" aria-pressed="false">잠들고 싶다</button>
+      <button class="chip" data-v="meditation" aria-pressed="false">깊은 명상에 들고 싶다</button>
+      <button class="chip" data-v="focus" aria-pressed="false">집중을 유지하고 싶다</button>
+      <button class="chip" data-v="relax" aria-pressed="false">긴장을 가라앉히고 싶다</button>
+      <button class="chip" data-v="morning" aria-pressed="false">아침을 활력 있게 열고 싶다</button>
+      <button class="chip" data-v="yoga" aria-pressed="false">요가·스트레칭을 하고 싶다</button>
+      <button class="chip" data-v="baby" aria-pressed="false">태교를 위한 시간</button>
+      <button class="chip" data-v="spa" aria-pressed="false">스파처럼 푹 쉬고 싶다</button>
+    </div>
+  </section>
+
+  <section class="step" id="step2">
+    <p class="qkicker">질문 2 / 7</p>
+    <h2 class="qtitle">어떤 느낌의 소리가 좋나요?</h2>
+    <p class="qhint">하나를 고르면 자동으로 다음으로 넘어가요.</p>
+    <div class="chips" id="aesq" role="group">
+      <button class="chip" data-v="nature" aria-pressed="false">자연 그대로의 소리</button>
+      <button class="chip" data-v="space" aria-pressed="false">우주적이고 몽환적인</button>
+      <button class="chip" data-v="oriental" aria-pressed="false">동양적이고 명상적인</button>
+      <button class="chip" data-v="piano" aria-pressed="false">피아노·현악기 연주</button>
+      <button class="chip" data-v="pure" aria-pressed="false">순수한 울림 (싱잉볼 등)</button>
+      <button class="chip" data-v="vintage" aria-pressed="false">따뜻한 빈티지 감성</button>
+    </div>
+  </section>
+
+  <section class="step" id="step3">
+    <p class="qkicker">질문 3 / 7</p>
+    <h2 class="qtitle">지금 상태는 어떤가요?</h2>
+    <p class="qhint">하나를 고르면 자동으로 다음으로 넘어가요.</p>
+    <div class="chips" id="stateq" role="group">
+      <button class="chip" data-v="tense" aria-pressed="false">많이 긴장되거나 들떠 있다</button>
+      <button class="chip" data-v="normal" aria-pressed="false">보통이다</button>
+      <button class="chip" data-v="calm" aria-pressed="false">비교적 차분한 편이다</button>
+    </div>
+  </section>
+
+  <section class="step" id="step4">
+    <p class="qkicker">질문 4 / 7</p>
+    <h2 class="qtitle">얼마나 시간을 낼 수 있나요?</h2>
+    <p class="qhint">하나를 고르면 자동으로 다음으로 넘어가요.</p>
+    <div class="chips" id="timeq" role="group">
+      <button class="chip" data-v="short" aria-pressed="false">1~2분, 짧게</button>
+      <button class="chip" data-v="mid" aria-pressed="false">5분 정도</button>
+      <button class="chip" data-v="long" aria-pressed="false">10분 이상, 충분히</button>
+    </div>
+  </section>
+
+  <section class="step" id="step5">
+    <p class="qkicker">질문 5 / 7</p>
+    <h2 class="qtitle">머릿속을 어떻게 두고 싶나요?</h2>
+    <p class="qhint">잘 모르겠으면 맨 아래를 누르세요.</p>
+    <div class="chips" id="brainq" role="group">
+      <button class="chip" data-v="alert" aria-pressed="false">또렷하게 깨어 있게</button>
+      <button class="chip" data-v="calm" aria-pressed="false">편안하게 풀리도록</button>
+      <button class="chip" data-v="deep" aria-pressed="false">깊이 가라앉도록</button>
+      <button class="chip none" data-v="auto" aria-pressed="false">잘 모르겠어요 (알아서 추천)</button>
+    </div>
+  </section>
+
+  <section class="step" id="step6">
+    <p class="qkicker">질문 6 / 7</p>
+    <h2 class="qtitle">해당하는 건강 상태가 있나요?</h2>
+    <p class="qhint">여러 개 고를 수 있어요. 없으면 '해당 없음'을 누르세요.</p>
+    <div class="chips" id="flags" role="group">
+      <button class="chip" data-v="cardio" aria-pressed="false">조절 안 된 고혈압·심혈관 질환</button>
+      <button class="chip" data-v="pregnancy" aria-pressed="false">임신 중</button>
+      <button class="chip" data-v="panic" aria-pressed="false">공황·불안 장애</button>
+      <button class="chip" data-v="epilepsy" aria-pressed="false">간질</button>
+      <button class="chip none" data-v="none" aria-pressed="false">해당 없음</button>
+    </div>
+    <div class="nav">
+      <button class="btn btn-back" id="back6">이전</button>
+      <button class="btn btn-next" id="next6" disabled>다음</button>
+    </div>
+  </section>
+
+  <section class="step" id="step7">
+    <p class="qkicker">질문 7 / 7</p>
+    <h2 class="qtitle">호흡법 경험은 어느 정도인가요?</h2>
+    <p class="qhint">하나를 고르면 추천 결과가 나와요.</p>
+    <div class="chips" id="level" role="group">
+      <button class="chip" data-v="beginner" aria-pressed="false">처음이에요</button>
+      <button class="chip" data-v="exp" aria-pressed="false">익숙해요</button>
+    </div>
+    <div class="nav"><button class="btn btn-back" id="back7">이전</button></div>
+  </section>
+
+  <section class="step" id="result">
+    <div class="reco-card">
+      <p class="reco-top">추천 호흡법</p>
+      <h2 class="reco-name" id="recoName">—</h2>
+      <div class="pattern" id="pattern"></div>
+      <p class="why" id="why"></p>
+      <p class="evidence" id="evidence"></p>
+      <div class="alts" id="altsBox" style="display:none;">
+        <h3>직접 골라보기 · SUM WAVE 호흡 &amp; 안전한 것만</h3>
+        <div class="altrow" id="altsChips"></div>
+      </div>
+      <div class="excluded" id="excludedBox" style="display:none;">
+        <h3>안전을 위해 제외한 것</h3>
+        <div id="excludedList"></div>
+      </div>
+    </div>
+    <div class="sumwave-box" id="sumwaveBox">
+      <p class="sw-top">SUM WAVE</p>
+      <p class="sw-desc" id="swDesc"></p>
+      <p class="sw-soon">아래 <b>따라 하기</b>를 누르면 이 호흡에 맞춘 SUM WAVE 화음이 함께 흐릅니다. <span style="opacity:.7">(미리듣기 사운드 — 정식 음원은 준비 중)</span></p>
+    </div>
+    <div class="pacer">
+      <div class="orb-stage">
+        <div class="orb" id="orb"><span class="phase" id="phase">준비</span></div>
+        <div class="count" id="count"></div>
+      </div>
+      <div class="controls">
+        <button class="pbtn" id="play">따라 하기 시작</button>
+        <button class="sndbtn" id="snd" aria-pressed="true">소리 켜짐</button>
+      </div>
+      <p class="sndhint">SUM WAVE 화음이 호흡 리듬에 맞춰 차오르고 빠집니다.</p>
+    </div>
+    <p class="safety-note">어지럽거나 가슴이 답답하면 즉시 멈추고 평소 호흡으로 돌아오세요. 지속되는 증상이나 질환이 있으면 의료진과 상의하세요.</p>
+    <button class="btn btn-back restart" id="restart">처음부터 다시</button>
+  </section>
+</div>
+
+<script>
+(function(){
+  // SUM WAVE 호흡 체계와 통일. evidence→특징(효과 단정 제거)
+  // ===== SUM WAVE 화음 엔진 (빌더에서 핵심만 인라인) =====
+  var NOTE_SEMI={C:0,'C#':1,D:2,'D#':3,E:4,F:5,'F#':6,G:7,'G#':8,A:9,'A#':10,B:11};
+  var RANGE_BASE={low:36,midlow:48,mid:60,high:72};
+  function chordToSemis(name){
+    var m=name.match(/^([A-G]#?)(.*)$/); if(!m) return null;
+    var root=NOTE_SEMI[m[1]], q=m[2], iv;
+    if(/maj7/.test(q)) iv=[0,4,7,11];
+    else if(/m7/.test(q)) iv=[0,3,7,10];
+    else if(/add9/.test(q)) iv=[0,4,7,14];
+    else if(/sus/.test(q)) iv=[0,5,7];
+    else if(/^m/.test(q)) iv=[0,3,7];
+    else if(/7/.test(q)) iv=[0,4,7,10];
+    else iv=[0,4,7];
+    return iv.map(function(i){return root+i;});
+  }
+  function applyVoicing(rel, rngKey, voiKey){
+    var base=RANGE_BASE[rngKey]||60;
+    var root=((rel[0]%12)+12)%12;  // 코드 근음 (보이싱 전 보존)
+    var notes=rel.map(function(x){return ((x%12)+12)%12;}).sort(function(a,b){return a-b;});
+    var n=notes.length;
+    if(voiKey==='inv1'&&n>=3){ notes=notes.slice(1).concat([notes[0]+12]); }
+    else if(voiKey==='inv2'&&n>=3){ notes=notes.slice(2).concat([notes[0]+12,notes[1]+12]); }
+    else if(voiKey==='open'&&n>=3){ notes=[notes[0],notes[2],notes[1]+12].concat(n>3?[notes[3]]:[]); }
+    else if(voiKey==='drop2'&&n>=4){ var s=notes.slice(); s[s.length-2]-=12; notes=s; }
+    else if(voiKey==='power5'){ notes=[root,root+7,root+12]; }  // 근음 기준 1·5·8도
+    return notes.map(function(x){return base+x;});
+  }
+  function midiToFreq(m){ return 440*Math.pow(2,(m-69)/12); }
+
+  var TECH = {
+    // ── SUM WAVE 코어 6종 (멈춤 없음) ──
+    coherent:{ name:"코히런트 호흡 (5:5)", hold:false, core:true,
+      why:"들숨 5초, 날숨 5초. 분당 약 6회로 들숨·날숨을 고르게 가져가는 균형 호흡이에요.",
+      evidence:"SUM WAVE 기본 호흡. 느리고 고른 리듬이라 누구에게나 무난해요.",
+      chips:[["들숨",5,false],["날숨",5,false]],
+      phases:[["들숨",5,.55,1,0],["날숨",5,1,.55,0]], sw:{chord:"Cadd9 Fmaj7", rng:"midlow", voi:"open"} },
+    deep:{ name:"깊은 호흡 (4:6)", hold:false, core:true,
+      why:"들숨 4초, 날숨 6초. 날숨을 조금 더 길게 두는 느리고 깊은 호흡이에요.",
+      evidence:"SUM WAVE 깊은 명상·수면 호흡. 멈춤이 없어 부담이 적어요.",
+      chips:[["들숨",4,false],["날숨",6,false]],
+      phases:[["들숨",4,.55,1,0],["날숨",6,1,.55,0]], sw:{chord:"Am7 Fmaj7", rng:"midlow", voi:"power5"} },
+    relax:{ name:"이완 호흡 (2:4)", hold:false, core:true,
+      why:"들숨 2초, 날숨 4초. 날숨을 들숨의 두 배로 길게 가져가 차분해지도록 돕는 호흡이에요.",
+      evidence:"SUM WAVE 이완 호흡. 짧고 부드러워 일상에서 쓰기 좋아요.",
+      chips:[["들숨",2,false],["날숨",4,false]],
+      phases:[["들숨",2,.55,1,0],["날숨",4,1,.55,0]], sw:{chord:"Cmaj7 G", rng:"midlow", voi:"drop2"} },
+    longout:{ name:"긴 날숨 호흡 (4:8)", hold:false, core:true,
+      why:"들숨 4초, 날숨 8초. 날숨을 들숨의 두 배로 길게 가져가, 멈춤 없이 몸이 깊이 이완되도록 돕는 호흡이에요.",
+      evidence:"SUM WAVE 긴 날숨 호흡. 멈춤이 없어 안전하고, 가장 깊은 이완에 써요.",
+      chips:[["들숨",4,false],["날숨",8,false]],
+      phases:[["들숨",4,.55,1,0],["날숨",8,1,.55,0]], sw:{chord:"Am7 Dm7", rng:"midlow", voi:"power5"} },
+    equal:{ name:"균등 호흡 (4:4)", hold:false, core:true,
+      why:"들숨 4초, 날숨 4초. 들숨과 날숨을 똑같이 가져가 균형감을 주는 호흡이에요. 따라하기 쉬워요.",
+      evidence:"SUM WAVE 균등 호흡. 들숨=날숨이라 초보자도 익히기 쉬워요.",
+      chips:[["들숨",4,false],["날숨",4,false]],
+      phases:[["들숨",4,.55,1,0],["날숨",4,1,.55,0]], sw:{chord:"C G", rng:"mid", voi:"root"} },
+    basic:{ name:"기본 호흡 (1:2)", hold:false, core:true,
+      why:"들숨 1초, 날숨 2초. 일상적이고 가벼운 호흡이에요. 빠르게 안정감을 찾을 때 좋아요.",
+      evidence:"SUM WAVE 기본 호흡. 가장 일상적인 리듬이에요.",
+      chips:[["들숨",1,false],["날숨",2,false]],
+      phases:[["들숨",1,.55,1,0],["날숨",2,1,.55,0]], sw:{chord:"C F", rng:"mid", voi:"root"} },
+    // ── 보조 호흡 (멈춤 없음, 특수 기법) ──
+    sigh:{ name:"생리적 한숨", hold:false, core:false,
+      why:"코로 한 번 들이쉰 뒤 한 번 더 짧게 채워 넣고, 입으로 길게 내쉬어요. 몇 번만 해도 빠르게 차분해지는 느낌을 줘요.",
+      evidence:"날숨을 길게 가져가는 간단한 기법. 멈춤이 없어 부담이 적어요.",
+      chips:[["들숨",2,false],["한 번 더",1,false],["길게 날숨",6,false]],
+      phases:[["코로 들숨",2,.55,.85,0],["한 번 더",1,.85,1,0],["입으로 길게 날숨",6,1,.55,0]], sw:{chord:"Fmaj7 Cadd9", rng:"midlow", voi:"open"} },
+    nostril:{ name:"교호 비강호흡", hold:false, core:false,
+      why:"손가락으로 한쪽 코를 막고 번갈아 쉬어요. 왼코 들숨 → 오른코 날숨 → 오른코 들숨 → 왼코 날숨. 멈춤은 넣지 않습니다.",
+      evidence:"전통 요가 호흡. 부드럽고 멈춤이 없어 집중·이완 대안으로 무난해요.",
+      chips:[["왼·들숨",4,false],["오른·날숨",4,false],["오른·들숨",4,false],["왼·날숨",4,false]],
+      phases:[["왼코 들숨",4,.55,1,-0.6],["오른코 날숨",4,1,.55,0.6],["오른코 들숨",4,.55,1,0.6],["왼코 날숨",4,1,.55,-0.6]], sw:{chord:"Dm7 G", rng:"mid", voi:"open"} },
+    ujjayi:{ name:"승리 호흡 (우짜이)", hold:false, core:false,
+      why:"목을 살짝 좁혀 '바다 소리'를 내며 코로 천천히 쉬어요. 들숨·날숨 각 5초. 소리에 집중이 모여요.",
+      evidence:"요가 전통 호흡. 느리고 부드러워 집중·이완에 무난해요.",
+      chips:[["들숨",5,false],["날숨",5,false]],
+      phases:[["들숨",5,.55,1,0],["날숨",5,1,.55,0]], sw:{chord:"Cmaj7 Am7", rng:"mid", voi:"open"} },
+    humming:{ name:"허밍 호흡 (브라마리)", hold:false, core:false,
+      why:"코로 들이쉰 뒤, 입을 다물고 콧소리로 '음—' 허밍하며 길게 내쉬어요. 날숨의 진동에 집중하게 돼요.",
+      evidence:"전통 호흡(브라마리). 멈춤이 없어 부담이 적어요.",
+      chips:[["들숨",4,false],["허밍 날숨",6,false]],
+      phases:[["들숨",4,.55,1,0],["허밍 날숨",6,1,.55,0]], sw:{chord:"Cadd9 Fmaj7", rng:"midlow", voi:"open"} },
+    // ── 심화 호흡 (멈춤 있음, 주의군 자동 제외) ──
+    "478":{ name:"4-7-8 호흡", hold:true, core:false,
+      why:"들숨 4초, 멈춤 7초, 날숨 8초. 긴 날숨과 멈춤이 있는 심화 호흡이에요.",
+      evidence:"멈춤이 있어, 익숙한 분에게 적합해요.",
+      chips:[["들숨",4,false],["멈춤",7,true],["날숨",8,false]],
+      phases:[["들숨",4,.55,1,0],["멈춤",7,1,1,0],["날숨",8,1,.55,0]], sw:{chord:"Am7 Fmaj7", rng:"midlow", voi:"power5"} },
+    box:{ name:"박스 호흡", hold:true, core:false,
+      why:"네 박자를 똑같이: 들숨·멈춤·날숨·멈춤 각 4초. 구조가 또렷해 흐트러진 주의를 붙잡아 줘요.",
+      evidence:"멈춤이 있는 심화 호흡. 집중·급성 긴장 상황에서 익숙한 분에게.",
+      chips:[["들숨",4,false],["멈춤",4,true],["날숨",4,false],["멈춤",4,true]],
+      phases:[["들숨",4,.55,1,0],["멈춤",4,1,1,0],["날숨",4,1,.55,0],["멈춤",4,.55,.55,0]], sw:{chord:"Dm7 Cmaj7", rng:"mid", voi:"root"} }
+  };
+  var byPurpose = { sleep:"longout", meditation:"deep", focus:"equal", relax:"relax", morning:"basic", yoga:"coherent", baby:"deep", spa:"longout" };
+  var safeAlt   = { sleep:"deep", meditation:"longout", focus:"coherent", relax:"longout", morning:"equal", yoga:"deep", baby:"coherent", spa:"deep" };
+  // 사용자 분위기 → 빌더 에스테틱 (목적 따라 동양적 분기)
+  function aesMap(ua, p){
+    if(ua==='nature') return 'natural';
+    if(ua==='space') return 'ambient';
+    if(ua==='piano') return 'neoclassical';
+    if(ua==='pure') return 'soundhealing';
+    if(ua==='vintage') return 'vintage';
+    if(ua==='oriental'){ if(p==='yoga') return 'indian'; if(p==='meditation') return 'tibetan'; return 'zen'; }
+    return 'natural';
+  }
+  // 사용자 뇌파 → 바이노럴 (auto면 목적 기반)
+  function brainMap(ub, p){
+    if(ub==='alert') return 'beta';
+    if(ub==='calm') return 'alpha';
+    if(ub==='deep') return (p==='sleep')?'delta':'theta';
+    var auto={sleep:'delta',meditation:'theta',focus:'beta',relax:'alpha',morning:'beta',yoga:'alpha',baby:'delta',spa:'alpha'};
+    return auto[p]||'alpha';
+  }
+  // 에스테틱 한글명 (결과 표시용)
+  var AES_KR={natural:'자연주의',ambient:'앰비언트',zen:'선(禪)',indian:'인도·요가',tibetan:'티베트',neoclassical:'네오클래식',soundhealing:'사운드힐링',vintage:'빈티지'};
+  var BRAIN_KR={delta:'델타(깊은 수면)',theta:'세타(깊은 명상)',alpha:'알파(편안한 이완)',beta:'베타(또렷한 집중)'};
+  var sel = { purpose:null, aes:null, state:null, time:null, brain:null, flags:new Set(), level:null };
+
+  function debounced(el){ var now=Date.now(); if(el._lk && now-el._lk<350) return true; el._lk=now; return false; }
+
+  var steps={1:document.getElementById('step1'),2:document.getElementById('step2'),3:document.getElementById('step3'),4:document.getElementById('step4'),5:document.getElementById('step5'),6:document.getElementById('step6'),7:document.getElementById('step7'),8:document.getElementById('result')};
+  var dots=[document.getElementById('d1'),document.getElementById('d2'),document.getElementById('d3'),document.getElementById('d4'),document.getElementById('d5'),document.getElementById('d6'),document.getElementById('d7')];
+  function showStep(n){
+    for(var k in steps){ steps[k].classList.toggle('active', String(n)===k); }
+    dots.forEach(function(d,i){ d.classList.toggle('on', i===(n-1)); d.classList.toggle('done', i<(n-1)); });
+    if(window.scrollTo){ try{ window.scrollTo({top:0,behavior:'smooth'}); }catch(e){ try{window.scrollTo(0,0);}catch(e2){} } }
+  }
+
+  // 단일선택 자동진행 헬퍼
+  function singleAuto(groupId, field, nextStep){
+    document.querySelectorAll('#'+groupId+' .chip').forEach(function(c){
+      c.onclick=function(){
+        if(debounced(c)) return;
+        document.querySelectorAll('#'+groupId+' .chip').forEach(function(x){x.setAttribute('aria-pressed','false');});
+        c.setAttribute('aria-pressed','true'); sel[field]=c.dataset.v;
+        setTimeout(function(){ if(nextStep==='result'){ render(recommend()); showStep(8); } else { showStep(nextStep); } }, 260);
+      };
+    });
+  }
+  // Q1 목적 → Q2 분위기 → Q3 상태 → Q4 시간 → Q5 뇌파
+  singleAuto('purpose','purpose',2);
+  singleAuto('aesq','aes',3);
+  singleAuto('stateq','state',4);
+  singleAuto('timeq','time',5);
+  singleAuto('brainq','brain',6);
+
+  // Q6 건강 (multi) + 다음
+  var next6=document.getElementById('next6');
+  function flagsAnswered(){ return sel.flags.size>0 || document.querySelector('#flags .chip.none').getAttribute('aria-pressed')==='true'; }
+  document.querySelectorAll('#flags .chip').forEach(function(c){
+    c.onclick=function(){
+      if(debounced(c)) return;
+      var v=c.dataset.v;
+      if(v==='none'){
+        sel.flags.clear();
+        document.querySelectorAll('#flags .chip').forEach(function(x){x.setAttribute('aria-pressed','false');});
+        c.setAttribute('aria-pressed','true');
+      }else{
+        document.querySelector('#flags .chip.none').setAttribute('aria-pressed','false');
+        if(sel.flags.has(v)){ sel.flags.delete(v); c.setAttribute('aria-pressed','false'); }
+        else{ sel.flags.add(v); c.setAttribute('aria-pressed','true'); }
+      }
+      next6.disabled=!flagsAnswered();
+    };
+  });
+  document.getElementById('back6').onclick=function(){ showStep(5); };
+  next6.onclick=function(){ if(next6.disabled) return; showStep(7); };
+
+  // Q7 경험 (single, auto → result)
+  document.querySelectorAll('#level .chip').forEach(function(c){
+    c.onclick=function(){
+      if(debounced(c)) return;
+      document.querySelectorAll('#level .chip').forEach(function(x){x.setAttribute('aria-pressed','false');});
+      c.setAttribute('aria-pressed','true'); sel.level=c.dataset.v;
+      setTimeout(function(){ render(recommend()); showStep(8); }, 260);
+    };
+  });
+  document.getElementById('back7').onclick=function(){ showStep(6); };
+
+  document.getElementById('restart').onclick=function(){
+    stopPacer();
+    sel.purpose=null; sel.aes=null; sel.state=null; sel.time=null; sel.brain=null; sel.flags.clear(); sel.level=null;
+    document.querySelectorAll('.chip').forEach(function(x){x.setAttribute('aria-pressed','false');});
+    next6.disabled=true;
+    showStep(1);
+  };
+
+  function recommend(){
+    var f=sel.flags;
+    var medical=f.has('cardio')||f.has('pregnancy')||f.has('epilepsy');
+    var panic=f.has('panic'); var beginner=sel.level==='beginner';
+    var noHold=medical||panic||beginner; var excluded=[];
+
+    // 1) 목적 기본값
+    var key=byPurpose[sel.purpose];
+    // 2) 상태 + 시간으로 조정 (검증된 다축 로직)
+    var s=sel.state, t=sel.time, p=sel.purpose;
+    if(s==='tense' && t==='short'){ key='sigh'; }
+    else if(s==='tense' && t==='long'){ key=(p==='focus')?'coherent':'longout'; }
+    else if(s==='calm' && t==='long'){ key=(p==='sleep')?'deep':'coherent'; }
+    else if(s==='calm' && t==='short'){ key=(p==='focus')?'equal':'basic'; }
+    // 보통(normal)이거나 5분(mid) → 목적 기본값 유지
+
+    // 3) 안전 필터 — 멈춤호흡이면 대체 (코어엔 멈춤 없지만 방어적)
+    if(TECH[key] && TECH[key].hold && noHold){
+      var reason;
+      if(medical) reason="긴 멈춤은 혈압·심혈관에 부담을 줄 수 있어 제외했어요.";
+      else if(panic) reason="공황·불안 경향이 있을 땐 숨을 멈추는 구간이 오히려 불안을 키울 수 있어요.";
+      else reason="처음이라면 멈춤 없는 호흡부터 익히는 게 안전하고 쉬워요.";
+      excluded.push([TECH[key].name, reason]); key=safeAlt[sel.purpose];
+    }
+    var alts=Object.keys(TECH).filter(function(k){ return !(noHold && TECH[k].hold); });
+    // 정렬: 추천 1순위 → SUM WAVE 코어 → 보조
+    alts.sort(function(a,b){
+      if(a===key) return -1; if(b===key) return 1;
+      var ca=TECH[a].core?0:1, cb=TECH[b].core?0:1;
+      return ca-cb;
+    });
+    return {key:key,excluded:excluded,alts:alts};
+  }
+
+  function renderTech(key){
+    var t=TECH[key];
+    document.getElementById('recoName').textContent=t.name;
+    var pat=document.getElementById('pattern'); pat.innerHTML='';
+    t.chips.forEach(function(c){ var el=document.createElement('span'); el.className='pchip'+(c[2]?' hold':''); el.innerHTML=c[0]+' <span class="n">'+c[1]+'</span>초'; pat.appendChild(el); });
+    document.getElementById('why').innerHTML='<strong>왜 이걸?</strong> '+t.why;
+    var swEl=document.getElementById('swDesc');
+    if(swEl){
+      var sw=t.sw||{};
+      var aesB = aesMap(sel.aes||'nature', sel.purpose);
+      var brainB = brainMap(sel.brain||'auto', sel.purpose);
+      var line='<strong>'+t.name+'</strong>의 리듬에 맞춰, <strong>'+(sw.chord||'')+'</strong> 화음이 들숨·날숨 주기로 흐릅니다.';
+      line+='<br><span style="opacity:.85">분위기 '+(AES_KR[aesB]||'')+' · 뇌파 '+(BRAIN_KR[brainB]||'')+'</span>';
+      swEl.innerHTML=line;
+    }
+    document.getElementById('evidence').textContent=t.evidence;
+    document.querySelectorAll('#altsChips .alt-chip').forEach(function(c){ c.setAttribute('aria-pressed', c.dataset.k===key?'true':'false'); });
+    setupPacer(t);
+  }
+  function render(r){
+    var chips=document.getElementById('altsChips'); chips.innerHTML='';
+    r.alts.forEach(function(k){
+      var b=document.createElement('button'); b.className='alt-chip'; b.dataset.k=k;
+      b.innerHTML=(k===r.key?'<span class="star">\u2605</span>':'')+TECH[k].name;
+      b.onclick=function(){ if(debounced(b)) return; renderTech(k); };
+      chips.appendChild(b);
+    });
+    document.getElementById('altsBox').style.display=r.alts.length>1?'block':'none';
+    var exBox=document.getElementById('excludedBox'), exList=document.getElementById('excludedList');
+    if(r.excluded.length){ exList.innerHTML='';
+      r.excluded.forEach(function(e){ var d=document.createElement('div'); d.className='exrow'; d.innerHTML='<b>'+e[0]+'</b> — '+e[1]; exList.appendChild(d); });
+      exBox.style.display='block';
+    }else{ exBox.style.display='none'; }
+    renderTech(r.key);
+  }
+
+  var raf=null, running=false, pattern=null, startT=0, soundOn=true, curPan=0;
+  var orb=document.getElementById('orb'), phaseEl=document.getElementById('phase'), countEl=document.getElementById('count'),
+      playBtn=document.getElementById('play'), sndBtn=document.getElementById('snd');
+  sndBtn.onclick=function(){ soundOn=!soundOn; sndBtn.setAttribute('aria-pressed', soundOn?'true':'false'); sndBtn.textContent=soundOn?'소리 켜짐':'소리 꺼짐'; if(!soundOn) teardownAudio(); else if(running) buildAudio(); };
+
+  var actx=null, anodes=null, curTech=null, chordIdx=0, breathCount=0;
+  // 현재 추천 호흡의 SUM WAVE 화음 진행 → MIDI 노트 배열들
+  // 에스테틱별 음역·보이싱 색 (사용자 분위기 반영)
+  var AES_TONE={
+    natural:{rng:"midlow",voi:"open"}, ambient:{rng:"midlow",voi:"open"},
+    zen:{rng:"midlow",voi:"power5"}, indian:{rng:"midlow",voi:"power5"},
+    tibetan:{rng:"low",voi:"power5"}, neoclassical:{rng:"mid",voi:"drop2"},
+    soundhealing:{rng:"midlow",voi:"power5"}, vintage:{rng:"midlow",voi:"open"}
+  };
+  function swChords(t){
+    var sw=t.sw||{chord:"Cadd9 Fmaj7",rng:"midlow",voi:"open"};
+    // 사용자가 고른 분위기(에스테틱)가 있으면 음역·보이싱을 그 색으로
+    var aesB = aesMap(sel.aes||'nature', sel.purpose);
+    var tone = AES_TONE[aesB] || {rng:sw.rng, voi:sw.voi};
+    return sw.chord.split(' ').map(function(name){
+      var rel=chordToSemis(name); if(!rel) return [48,55,60];
+      return applyVoicing(rel, tone.rng, tone.voi, rel[0]);
+    });
+  }
+  function buildAudio(){
+    if(actx) return;
+    actx=new (window.AudioContext||window.webkitAudioContext)();
+    if(actx.state==='suspended') actx.resume();
+    var master=actx.createGain(); master.gain.value=0.0001; master.connect(actx.destination);
+    // 간이 리버브 (피드백 딜레이)
+    var dly=actx.createDelay(); dly.delayTime.value=0.18; var fb=actx.createGain(); fb.gain.value=0.32;
+    var wet=actx.createGain(); wet.gain.value=0.28;
+    dly.connect(fb); fb.connect(dly); dly.connect(wet); wet.connect(master);
+    var panner=actx.createStereoPanner?actx.createStereoPanner():null; var sink=panner||master; if(panner) panner.connect(master);
+    var lp=actx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=900; lp.Q.value=0.3;
+    var breath=actx.createGain(); breath.gain.value=0.0001; lp.connect(breath); breath.connect(sink); breath.connect(dly);
+    // 화음 보이스: 최대 4음, 각 음마다 디튠 톱니 2개 (따뜻한 패드)
+    var voices=[];
+    for(var i=0;i<4;i++){
+      var vg=actx.createGain(); vg.gain.value=0; vg.connect(lp);
+      var a=actx.createOscillator(); a.type='sawtooth'; a.detune.value=-6;
+      var b=actx.createOscillator(); b.type='sawtooth'; b.detune.value=6;
+      var bg=actx.createGain(); bg.gain.value=0.5; b.connect(bg); bg.connect(vg);
+      a.connect(vg); a.start(); b.start();
+      voices.push({osc:a,osc2:b,gain:vg});
+    }
+    master.gain.linearRampToValueAtTime(0.16, actx.currentTime+1.2);
+    anodes={master:master,panner:panner,lp:lp,breath:breath,voices:voices};
+    chordIdx=0; breathCount=0;
+    applyChord(0);
+  }
+  // 화음을 보이스에 적용 (주파수 설정)
+  function applyChord(idx){
+    if(!actx||!anodes||!curTech) return;
+    var chords=swChords(curTech);
+    var notes=chords[idx % chords.length];
+    anodes.voices.forEach(function(v,i){
+      if(i<notes.length){
+        var f=midiToFreq(notes[i]);
+        v.osc.frequency.setTargetAtTime(f, actx.currentTime, 0.05);
+        v.osc2.frequency.setTargetAtTime(f, actx.currentTime, 0.05);
+        v.gain.gain.setTargetAtTime(0.16/notes.length, actx.currentTime, 0.3);
+      }else{
+        v.gain.gain.setTargetAtTime(0, actx.currentTime, 0.3);
+      }
+    });
+  }
+  function teardownAudio(){ if(!actx) return; try{ anodes.master.gain.cancelScheduledValues(actx.currentTime); anodes.master.gain.linearRampToValueAtTime(0.0001, actx.currentTime+0.5);}catch(e){} var c=actx; setTimeout(function(){try{c.close();}catch(e){}},600); actx=null; anodes=null; }
+
+  function setupPacer(t){ stopPacer(); curTech=t; pattern=t.phases.map(function(p){return{label:p[0],dur:p[1],from:p[2],to:p[3],pan:(p[4]||0)};}); phaseEl.textContent="준비"; countEl.textContent=""; orb.style.transform="scale(.55)"; playBtn.textContent="따라 하기 시작"; }
+  function ease(p){ return (1-Math.cos(Math.PI*p))/2; }
+  function frame(now){
+    var total=pattern.reduce(function(s,p){return s+p.dur;},0);
+    var t=((now-startT)/1000)%total, acc=0, cur=pattern[0], local=0;
+    for(var i=0;i<pattern.length;i++){ var ph=pattern[i]; if(t<acc+ph.dur){cur=ph;local=t-acc;break;} acc+=ph.dur; }
+    var e=ease(local/cur.dur), scale=cur.from+(cur.to-cur.from)*e;
+    orb.style.transform="scale("+scale.toFixed(3)+")"; phaseEl.textContent=cur.label; countEl.textContent=Math.ceil(cur.dur-local)+" / "+cur.dur+"초";
+    if(actx&&anodes){
+      var env=(scale-0.55)/0.45;  // 0(날숨끝)~1(들숨끝)
+      // 패드가 호흡으로 숨쉼: 들숨에 차오르고 날숨에 잦아듦
+      anodes.breath.gain.setTargetAtTime(0.22*(0.4+0.6*env), actx.currentTime, 0.08);
+      anodes.lp.frequency.setTargetAtTime(600+1600*env, actx.currentTime, 0.1);
+      if(anodes.panner){ curPan+=(cur.pan-curPan)*0.04; anodes.panner.pan.value=curPan; }
+    }
+    // 한 호흡 주기 끝나면 다음 화음으로
+    var cycleNow=Math.floor((now-startT)/1000/total);
+    if(cycleNow!==breathCount){ breathCount=cycleNow; chordIdx++; applyChord(chordIdx); }
+    raf=requestAnimationFrame(frame);
+  }
+  function startPacer(){ running=true; if(soundOn) buildAudio(); startT=performance.now(); playBtn.textContent="멈추기"; raf=requestAnimationFrame(frame); }
+  function stopPacer(){ running=false; if(raf)cancelAnimationFrame(raf); teardownAudio(); if(pattern){playBtn.textContent="따라 하기 시작";} }
+  playBtn.onclick=function(){ if(debounced(playBtn)) return; if(running){ stopPacer(); phaseEl.textContent="준비"; countEl.textContent=""; orb.style.transform="scale(.55)"; } else { startPacer(); } };
+
+  showStep(1);
+})();
+</script>
+</body>
+</html>
