@@ -266,6 +266,7 @@
     <p class="qhint">하나를 고르면 추천 결과가 나와요.</p>
     <div class="chips" id="level" role="group">
       <button class="chip" data-v="beginner" aria-pressed="false">처음이에요</button>
+      <button class="chip" data-v="some" aria-pressed="false">조금 해봤어요</button>
       <button class="chip" data-v="exp" aria-pressed="false">익숙해요</button>
     </div>
     <div class="nav"><button class="btn btn-back" id="back7">이전</button></div>
@@ -502,8 +503,8 @@
   function recommend(){
     var f=sel.flags;
     var medical=f.has('cardio')||f.has('pregnancy')||f.has('epilepsy');
-    var panic=f.has('panic'); var beginner=sel.level==='beginner';
-    var noHold=medical||panic||beginner; var excluded=[];
+    var panic=f.has('panic'); var novice=(sel.level==='beginner'||sel.level==='some');
+    var noHold=medical||panic||novice; var excluded=[];
 
     // 1) 목적 기본값
     var key=byPurpose[sel.purpose];
@@ -520,7 +521,7 @@
       var reason;
       if(medical) reason="긴 멈춤은 혈압·심혈관에 부담을 줄 수 있어 제외했어요.";
       else if(panic) reason="공황·불안 경향이 있을 땐 숨을 멈추는 구간이 오히려 불안을 키울 수 있어요.";
-      else reason="처음이라면 멈춤 없는 호흡부터 익히는 게 안전하고 쉬워요.";
+      else reason=(sel.level==='beginner')?"처음이라면 멈춤 없는 호흡부터 익히는 게 안전하고 쉬워요.":"아직은 멈춤 없는 호흡으로, 익숙해지면 더 깊은 호흡으로 넓혀가세요.";
       excluded.push([TECH[key].name, reason]); key=safeAlt[sel.purpose];
     }
     var alts=Object.keys(TECH).filter(function(k){ return !(noHold && TECH[k].hold); });
@@ -615,7 +616,7 @@
       a.connect(vg); a.start(); b.start();
       voices.push({osc:a,osc2:b,gain:vg});
     }
-    master.gain.linearRampToValueAtTime(0.16, actx.currentTime+1.2);
+    master.gain.linearRampToValueAtTime(0.30, actx.currentTime+1.2);
     anodes={master:master,panner:panner,lp:lp,breath:breath,voices:voices};
     chordIdx=0; breathCount=0;
     applyChord(0);
@@ -630,7 +631,7 @@
         var f=midiToFreq(notes[i]);
         v.osc.frequency.setTargetAtTime(f, actx.currentTime, 0.05);
         v.osc2.frequency.setTargetAtTime(f, actx.currentTime, 0.05);
-        v.gain.gain.setTargetAtTime(0.16/notes.length, actx.currentTime, 0.3);
+        v.gain.gain.setTargetAtTime(0.26/notes.length, actx.currentTime, 0.3);
       }else{
         v.gain.gain.setTargetAtTime(0, actx.currentTime, 0.3);
       }
@@ -649,7 +650,7 @@
     if(actx&&anodes){
       var env=(scale-0.55)/0.45;  // 0(날숨끝)~1(들숨끝)
       // 패드가 호흡으로 숨쉼: 들숨에 차오르고 날숨에 잦아듦
-      anodes.breath.gain.setTargetAtTime(0.22*(0.4+0.6*env), actx.currentTime, 0.08);
+      anodes.breath.gain.setTargetAtTime(0.34*(0.5+0.5*env), actx.currentTime, 0.08);
       anodes.lp.frequency.setTargetAtTime(600+1600*env, actx.currentTime, 0.1);
       if(anodes.panner){ curPan+=(cur.pan-curPan)*0.04; anodes.panner.pan.value=curPan; }
     }
