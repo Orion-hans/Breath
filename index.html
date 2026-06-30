@@ -636,8 +636,8 @@
     anodes={master:master,panner:panner,lp:lp,breath:breath,voices:voices,tone:tone};
     chordIdx=0; breathCount=0; lastPluckPhase=null;
     applyChord(0);
-    // 피아노면 초기 음량 0 (frame의 첫 들숨에 재타건)
-    if(tone.pluck){ anodes.voices.forEach(function(v){ v.gain.gain.setValueAtTime(0.0001, actx.currentTime); }); }
+    // 피아노면 시작하자마자 첫 타건
+    if(tone.pluck){ setTimeout(function(){ if(actx) pluckNotes(); }, 1300); }
   }
   // 화음을 보이스에 적용 (주파수 설정)
   function applyChord(idx){
@@ -703,16 +703,17 @@
       }
       if(anodes.panner){ curPan+=(cur.pan-curPan)*0.04; anodes.panner.pan.value=curPan; }
     }
-    // 들숨 시작 감지 (날숨끝→들숨)
-    var phaseIdx=pattern.indexOf(cur);
-    var isInhaleStart = (cur.to>cur.from) && local<0.1;  // 부푸는 단계 시작
-    if(isPluck && isInhaleStart && lastPluckPhase!==phaseIdx+'-'+Math.floor((now-startT)/1000/total)){
-      lastPluckPhase=phaseIdx+'-'+Math.floor((now-startT)/1000/total);
-      pluckNotes();
-    }
-    // 2 호흡 주기마다 다음 화음으로 (차분하게)
+    // 호흡 주기가 바뀔 때마다 화음 변경
     var cycleNow=Math.floor((now-startT)/1000/total);
-    if(cycleNow!==breathCount){ breathCount=cycleNow; if(cycleNow%2===0){ chordIdx++; applyChord(chordIdx); if(isPluck) pluckNotes(); } }
+    if(cycleNow!==breathCount){
+      breathCount=cycleNow;
+      if(cycleNow%2===0){ chordIdx++; applyChord(chordIdx); }  // 2주기마다 화음 변경
+    }
+    // 피아노: 단계(들숨/날숨) 전환마다 재타건 — 빈 느낌 없게
+    if(isPluck){
+      var curPhaseKey=cycleNow+'-'+pattern.indexOf(cur);
+      if(lastPluckPhase!==curPhaseKey){ lastPluckPhase=curPhaseKey; pluckNotes(); }
+    }
     raf=requestAnimationFrame(frame);
   }
   function startPacer(){ running=true; if(soundOn) buildAudio(); startT=performance.now(); playBtn.textContent="멈추기"; raf=requestAnimationFrame(frame); }
