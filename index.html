@@ -291,7 +291,7 @@
     <div class="sumwave-box" id="sumwaveBox">
       <p class="sw-top">SUM WAVE</p>
       <p class="sw-desc" id="swDesc"></p>
-      <p class="sw-soon">아래 <b>따라 하기</b>를 누르면 이 호흡에 맞춘 SUM WAVE 화음이 함께 흐릅니다. <span style="opacity:.7">(미리듣기 사운드 — 정식 음원은 준비 중)</span></p>
+      <p class="sw-soon">아래 <b>따라 하기</b>를 누르면 이 호흡에 맞춘 SUM WAVE 화음이 선택한 분위기의 음색으로 함께 흐릅니다. <span style="opacity:.7">(미리듣기 합성음 — 정식 음원은 준비 중)</span></p>
     </div>
     <div class="pacer">
       <div class="orb-stage">
@@ -575,15 +575,23 @@
       playBtn=document.getElementById('play'), sndBtn=document.getElementById('snd');
   sndBtn.onclick=function(){ soundOn=!soundOn; sndBtn.setAttribute('aria-pressed', soundOn?'true':'false'); sndBtn.textContent=soundOn?'소리 켜짐':'소리 꺼짐'; if(!soundOn) teardownAudio(); else if(running) buildAudio(); };
 
-  var actx=null, anodes=null, curTech=null, chordIdx=0, breathCount=0;
+  var actx=null, anodes=null, curTech=null, chordIdx=0, breathCount=0, lastPluckPhase=null;
   // 현재 추천 호흡의 SUM WAVE 화음 진행 → MIDI 노트 배열들
   // 에스테틱별 음역·보이싱 색 (사용자 분위기 반영)
   var AES_TONE={
-    natural:{rng:"midlow",voi:"open"}, ambient:{rng:"midlow",voi:"open"},
-    zen:{rng:"midlow",voi:"power5"}, indian:{rng:"midlow",voi:"power5"},
-    tibetan:{rng:"low",voi:"power5"}, neoclassical:{rng:"mid",voi:"drop2"},
-    soundhealing:{rng:"midlow",voi:"power5"}, vintage:{rng:"midlow",voi:"open"}
+    natural:{rng:"midlow",voi:"open",  wave:"triangle", lp:1200, harm:0,   pluck:false},
+    ambient:{rng:"midlow",voi:"open",  wave:"sawtooth", lp:900,  harm:0,   pluck:false},
+    zen:{rng:"midlow",voi:"power5",    wave:"sine",     lp:1000, harm:1.5, pluck:false},
+    indian:{rng:"midlow",voi:"power5", wave:"sine",     lp:1100, harm:1.5, pluck:false},
+    tibetan:{rng:"low",voi:"power5",   wave:"sine",     lp:900,  harm:1.5, pluck:false},
+    neoclassical:{rng:"mid",voi:"drop2",wave:"triangle",lp:2800, harm:2.0, pluck:true},
+    soundhealing:{rng:"midlow",voi:"power5",wave:"sine",lp:1800, harm:2.7, pluck:false},
+    vintage:{rng:"midlow",voi:"open",  wave:"sawtooth", lp:700,  harm:0,   pluck:false}
   };
+  function currentTone(){
+    var aesB=aesMap(sel.aes||'nature', sel.purpose);
+    return AES_TONE[aesB] || AES_TONE.natural;
+  }
   function swChords(t){
     var sw=t.sw||{chord:"Cadd9 Fmaj7",rng:"midlow",voi:"open"};
     // 사용자가 고른 분위기(에스테틱)가 있으면 음역·보이싱을 그 색으로
@@ -604,22 +612,32 @@
     var wet=actx.createGain(); wet.gain.value=0.28;
     dly.connect(fb); fb.connect(dly); dly.connect(wet); wet.connect(master);
     var panner=actx.createStereoPanner?actx.createStereoPanner():null; var sink=panner||master; if(panner) panner.connect(master);
-    var lp=actx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=900; lp.Q.value=0.3;
+    var tone=currentTone();
+    var lp=actx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=tone.lp; lp.Q.value=0.3;
     var breath=actx.createGain(); breath.gain.value=0.0001; lp.connect(breath); breath.connect(sink); breath.connect(dly);
-    // 화음 보이스: 최대 4음, 각 음마다 디튠 톱니 2개 (따뜻한 패드)
+    // 화음 보이스: 분위기별 파형·배음 (음색 구분)
     var voices=[];
     for(var i=0;i<4;i++){
       var vg=actx.createGain(); vg.gain.value=0; vg.connect(lp);
-      var a=actx.createOscillator(); a.type='sawtooth'; a.detune.value=-6;
-      var b=actx.createOscillator(); b.type='sawtooth'; b.detune.value=6;
+      var a=actx.createOscillator(); a.type=tone.wave; a.detune.value=-6;
+      var b=actx.createOscillator(); b.type=tone.wave; b.detune.value=6;
       var bg=actx.createGain(); bg.gain.value=0.5; b.connect(bg); bg.connect(vg);
       a.connect(vg); a.start(); b.start();
-      voices.push({osc:a,osc2:b,gain:vg});
+      var voice={osc:a,osc2:b,gain:vg};
+      // 배음 오실레이터 (싱잉볼·동양적 울림)
+      if(tone.harm>0){
+        var h=actx.createOscillator(); h.type='sine';
+        var hg=actx.createGain(); hg.gain.value=0.18; h.connect(hg); hg.connect(vg); h.start();
+        voice.harm=h; voice.harmRatio=tone.harm;
+      }
+      voices.push(voice);
     }
     master.gain.linearRampToValueAtTime(0.30, actx.currentTime+1.2);
-    anodes={master:master,panner:panner,lp:lp,breath:breath,voices:voices};
-    chordIdx=0; breathCount=0;
+    anodes={master:master,panner:panner,lp:lp,breath:breath,voices:voices,tone:tone};
+    chordIdx=0; breathCount=0; lastPluckPhase=null;
     applyChord(0);
+    // 피아노면 초기 음량 0 (frame의 첫 들숨에 재타건)
+    if(tone.pluck){ anodes.voices.forEach(function(v){ v.gain.gain.setValueAtTime(0.0001, actx.currentTime); }); }
   }
   // 화음을 보이스에 적용 (주파수 설정)
   function applyChord(idx){
@@ -631,11 +649,35 @@
         var f=midiToFreq(notes[i]);
         v.osc.frequency.setTargetAtTime(f, actx.currentTime, 0.05);
         v.osc2.frequency.setTargetAtTime(f, actx.currentTime, 0.05);
+        if(v.harm){ v.harm.frequency.setTargetAtTime(f*v.harmRatio, actx.currentTime, 0.05); }
         v.gain.gain.setTargetAtTime(0.26/notes.length, actx.currentTime, 0.3);
       }else{
         v.gain.gain.setTargetAtTime(0, actx.currentTime, 0.3);
       }
     });
+  }
+  // 피아노 재타건: 들숨 시작마다 음을 새로 '침' (빠른 어택 → 감쇠)
+  function pluckNotes(){
+    if(!actx||!anodes||!curTech) return;
+    var chords=swChords(curTech);
+    var notes=chords[chordIdx % chords.length];
+    var t0=actx.currentTime;
+    anodes.voices.forEach(function(v,i){
+      if(i<notes.length){
+        var peak=0.30/notes.length;
+        v.gain.gain.cancelScheduledValues(t0);
+        v.gain.gain.setValueAtTime(0.0001, t0);
+        v.gain.gain.linearRampToValueAtTime(peak, t0+0.012);   // 빠른 어택
+        v.gain.gain.exponentialRampToValueAtTime(peak*0.25, t0+2.2);  // 길게 감쇠
+      }
+    });
+    // 어택 순간 밝고 감쇠하며 어두워짐
+    if(anodes.lp){
+      var bL=(anodes.tone&&anodes.tone.lp)?anodes.tone.lp:2500;
+      anodes.lp.frequency.cancelScheduledValues(t0);
+      anodes.lp.frequency.setValueAtTime(bL, t0);
+      anodes.lp.frequency.exponentialRampToValueAtTime(bL*0.5, t0+1.8);
+    }
   }
   function teardownAudio(){ if(!actx) return; try{ anodes.master.gain.cancelScheduledValues(actx.currentTime); anodes.master.gain.linearRampToValueAtTime(0.0001, actx.currentTime+0.5);}catch(e){} var c=actx; setTimeout(function(){try{c.close();}catch(e){}},600); actx=null; anodes=null; }
 
@@ -647,21 +689,43 @@
     for(var i=0;i<pattern.length;i++){ var ph=pattern[i]; if(t<acc+ph.dur){cur=ph;local=t-acc;break;} acc+=ph.dur; }
     var e=ease(local/cur.dur), scale=cur.from+(cur.to-cur.from)*e;
     orb.style.transform="scale("+scale.toFixed(3)+")"; phaseEl.textContent=cur.label; countEl.textContent=Math.ceil(cur.dur-local)+" / "+cur.dur+"초";
+    var isPluck=anodes&&anodes.tone&&anodes.tone.pluck;
     if(actx&&anodes){
       var env=(scale-0.55)/0.45;  // 0(날숨끝)~1(들숨끝)
-      // 패드가 호흡으로 숨쉼: 들숨에 차오르고 날숨에 잦아듦
-      anodes.breath.gain.setTargetAtTime(0.34*(0.5+0.5*env), actx.currentTime, 0.08);
-      anodes.lp.frequency.setTargetAtTime(600+1600*env, actx.currentTime, 0.1);
+      var baseLp=(anodes.tone&&anodes.tone.lp)?anodes.tone.lp:1000;
+      if(isPluck){
+        // 피아노: breath는 일정(재타건이 음량 담당), 필터도 pluck이 제어
+        anodes.breath.gain.setTargetAtTime(0.4, actx.currentTime, 0.1);
+      } else {
+        // 패드: 호흡으로 부풂/잦아듦
+        anodes.breath.gain.setTargetAtTime(0.34*(0.5+0.5*env), actx.currentTime, 0.08);
+        anodes.lp.frequency.setTargetAtTime(baseLp*0.6 + baseLp*0.7*env, actx.currentTime, 0.1);
+      }
       if(anodes.panner){ curPan+=(cur.pan-curPan)*0.04; anodes.panner.pan.value=curPan; }
     }
-    // 한 호흡 주기 끝나면 다음 화음으로
+    // 들숨 시작 감지 (날숨끝→들숨)
+    var phaseIdx=pattern.indexOf(cur);
+    var isInhaleStart = (cur.to>cur.from) && local<0.1;  // 부푸는 단계 시작
+    if(isPluck && isInhaleStart && lastPluckPhase!==phaseIdx+'-'+Math.floor((now-startT)/1000/total)){
+      lastPluckPhase=phaseIdx+'-'+Math.floor((now-startT)/1000/total);
+      pluckNotes();
+    }
+    // 2 호흡 주기마다 다음 화음으로 (차분하게)
     var cycleNow=Math.floor((now-startT)/1000/total);
-    if(cycleNow!==breathCount){ breathCount=cycleNow; chordIdx++; applyChord(chordIdx); }
+    if(cycleNow!==breathCount){ breathCount=cycleNow; if(cycleNow%2===0){ chordIdx++; applyChord(chordIdx); if(isPluck) pluckNotes(); } }
     raf=requestAnimationFrame(frame);
   }
   function startPacer(){ running=true; if(soundOn) buildAudio(); startT=performance.now(); playBtn.textContent="멈추기"; raf=requestAnimationFrame(frame); }
   function stopPacer(){ running=false; if(raf)cancelAnimationFrame(raf); teardownAudio(); if(pattern){playBtn.textContent="따라 하기 시작";} }
-  playBtn.onclick=function(){ if(debounced(playBtn)) return; if(running){ stopPacer(); phaseEl.textContent="준비"; countEl.textContent=""; orb.style.transform="scale(.55)"; } else { startPacer(); } };
+  function togglePacer(srcEl){ if(debounced(srcEl||playBtn)) return; if(running){ stopPacer(); phaseEl.textContent="준비"; countEl.textContent=""; orb.style.transform="scale(.55)"; } else { startPacer(); } }
+  playBtn.onclick=function(){ togglePacer(playBtn); };
+  // 오브를 눌러도 시작/멈춤
+  orb.style.cursor='pointer';
+  orb.setAttribute('role','button');
+  orb.setAttribute('tabindex','0');
+  orb.setAttribute('aria-label','호흡 따라하기 시작/멈춤');
+  orb.onclick=function(){ togglePacer(orb); };
+  orb.onkeydown=function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); togglePacer(orb); } };
 
   showStep(1);
 })();
